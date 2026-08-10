@@ -61,6 +61,25 @@ export async function POST(
       return NextResponse.json({ error: 'Missing name or phone after parsing' }, { status: 400 })
     }
 
+    // 6.5 Prevent duplicates in the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+    const { data: existingLeads } = await supabaseAdmin
+      .from('leads')
+      .select('id, sync_status')
+      .eq('sheet_config_id', sheetConfigId)
+      .eq('phone_cleaned', phoneCleaned)
+      .gte('created_at', fiveMinutesAgo)
+      .limit(1)
+
+    if (existingLeads && existingLeads.length > 0) {
+      return NextResponse.json({ 
+        success: true, 
+        leadId: existingLeads[0].id, 
+        syncStatus: existingLeads[0].sync_status,
+        message: 'Lead duplicated within 5 minutes, ignored.'
+      })
+    }
+
     // 7. حفظ العميل
     const { data: lead, error: leadError } = await supabaseAdmin
       .from('leads')

@@ -72,6 +72,7 @@ export async function sendToNuzul(payload: NuzulPayload): Promise<NuzulResponse>
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   };
 
   // إضافة API Token إذا متوفر
