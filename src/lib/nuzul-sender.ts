@@ -43,7 +43,13 @@ export function buildNuzulPayload(lead: LeadData, config: SheetConfig): NuzulPay
     mobile_number: lead.phone_cleaned,
   };
 
-  if (lead.email) payload.email = lead.email;
+  if (lead.email) {
+    const emailStr = lead.email.trim().toLowerCase();
+    // Only send the email if it's a valid string and contains '@'
+    if (emailStr !== 'null' && emailStr !== 'undefined' && emailStr !== '-' && emailStr.includes('@')) {
+      payload.email = lead.email.trim();
+    }
+  }
   if (config.note) payload.note = config.note;
   if (config.source) payload.source = config.source;
 
