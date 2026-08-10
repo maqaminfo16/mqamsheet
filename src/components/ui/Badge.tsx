@@ -4,9 +4,10 @@ export interface BadgeProps {
   variant?: 'success' | 'warning' | 'danger' | 'info';
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Badge({ variant = 'info', children, className = '' }: BadgeProps) {
+export function Badge({ variant = 'info', children, className = '', style: customStyle = {} }: BadgeProps) {
   const colors = {
     success: { bg: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: 'rgba(16, 185, 129, 0.2)' },
     warning: { bg: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning)', border: 'rgba(245, 158, 11, 0.2)' },
@@ -29,7 +30,8 @@ export function Badge({ variant = 'info', children, className = '' }: BadgeProps
         backgroundColor: style.bg,
         color: style.color,
         border: `1px solid ${style.border}`,
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        ...customStyle
       }}
     >
       {children}
