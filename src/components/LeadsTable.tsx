@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Column } from './ui/Table';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
@@ -42,12 +42,27 @@ function CopyErrorButton({ text }: { text: string }) {
 export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProps) {
   const [filter, setFilter] = useState<'all' | 'pending' | 'sent' | 'failed'>('all');
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(30);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, search, itemsPerPage]);
 
   const filteredLeads = leads.filter(lead => {
     if (filter !== 'all' && lead.sync_status !== filter) return false;
     if (search && !lead.full_name.includes(search) && !lead.phone_cleaned.includes(search)) return false;
     return true;
   });
+
+  const totalItems = filteredLeads.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedLeads = filteredLeads.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   const columns: Column<Lead>[] = [
     { key: 'full_name', header: 'الاسم' },
@@ -149,9 +164,66 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
       </div>
       
       <div className="glass" style={{ padding: '20px' }}>
-        <Table columns={columns} data={filteredLeads} emptyMessage="لا يوجد عملاء مطابقين للبحث" />
-        <div style={{ marginTop: '16px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          إجمالي النتائج: {filteredLeads.length}
+        <Table columns={columns} data={paginatedLeads} emptyMessage="لا يوجد عملاء مطابقين للبحث" />
+        
+        <div style={{ 
+          marginTop: '16px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+            إجمالي العملاء: {totalItems} | يعرض {startItem} إلى {endItem}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>عدد العملاء بالصفحة:</span>
+              <select 
+                value={itemsPerPage} 
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                style={{ 
+                  padding: '4px 8px', 
+                  borderRadius: '4px', 
+                  border: '1px solid var(--border-color, #e5e7eb)',
+                  background: 'var(--bg-primary, transparent)',
+                  color: 'inherit',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value={30} style={{ color: '#000' }}>30</option>
+                <option value={60} style={{ color: '#000' }}>60</option>
+                <option value={100} style={{ color: '#000' }}>100</option>
+              </select>
+            </div>
+
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  السابق
+                </Button>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px', fontSize: '0.9rem' }}>
+                  {currentPage} من {totalPages}
+                </div>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  التالي
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
