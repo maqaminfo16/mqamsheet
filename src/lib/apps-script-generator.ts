@@ -63,7 +63,8 @@ function setupTrigger() {
  * يتم استدعاؤها تلقائياً عند أي تغيير في الشيت
  */
 function onSheetChange(e) {
-  if (!e || e.changeType !== 'INSERT_ROW') return;
+  // السماح بالإضافة وإدراج الصفوف والتعديل اليدوي
+  if (!e || (e.changeType !== 'INSERT_ROW' && e.changeType !== 'EDIT')) return;
   processNewRows();
 }
 
@@ -102,8 +103,8 @@ function processNewRows() {
     var name = getValue_(row, indexes, NAME_COLUMN);
     var phone = getValue_(row, indexes, PHONE_COLUMN);
 
-    // تخطي الصفوف الفارغة
-    if (!name && !phone) return;
+    // لا ترسل البيانات إلا بعد تعبئة الاسم ورقم الهاتف معاً
+    if (!name || !phone) return;
 
     var payload = {
       rowData: {}
