@@ -18,20 +18,34 @@ export async function GET(
     return NextResponse.json({ error: error.message }, { status: 404 })
   }
 
-  // إحصائيات
-  const { data: leads, error: leadsError } = await supabase
-    .from('leads')
-    .select('sync_status')
-    .eq('sheet_config_id', id)
+  // إحصائيات - استخدام count queries بدلاً من جلب كل البيانات
+  const [totalRes, sentRes, failedRes, pendingRes] = await Promise.all([
+    supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('sheet_config_id', id),
+    supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('sheet_config_id', id)
+      .eq('sync_status', 'sent'),
+    supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('sheet_config_id', id)
+      .eq('sync_status', 'failed'),
+    supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('sheet_config_id', id)
+      .eq('sync_status', 'pending'),
+  ])
 
-  let stats = { total: 0, sent: 0, failed: 0, pending: 0 }
-  if (leads && !leadsError) {
-    stats.total = leads.length
-    leads.forEach((l) => {
-      if (l.sync_status === 'sent') stats.sent++
-      else if (l.sync_status === 'failed') stats.failed++
-      else if (l.sync_status === 'pending') stats.pending++
-    })
+  const stats = {
+    total: totalRes.count || 0,
+    sent: sentRes.count || 0,
+    failed: failedRes.count || 0,
+    pending: pendingRes.count || 0,
   }
 
   return NextResponse.json({ data: { config, stats } })

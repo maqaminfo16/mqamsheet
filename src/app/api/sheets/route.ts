@@ -15,44 +15,48 @@ export async function GET() {
     return NextResponse.json({ error: sheetsError.message }, { status: 500 })
   }
 
-  // جلب إحصائيات من leads لكل ملف
-  const { data: leads, error: leadsError } = await supabase
-    .from('leads')
-    .select('sheet_config_id, sync_status')
-
-  if (leadsError) {
-    return NextResponse.json({ error: leadsError.message }, { status: 500 })
+  if (!sheets || sheets.length === 0) {
+    return NextResponse.json({ data: [] })
   }
 
-  // تجميع الإحصائيات
-  const statsMap = new Map()
-  
-  if (leads) {
-    leads.forEach((lead) => {
-      const sheetId = lead.sheet_config_id
-      if (!statsMap.has(sheetId)) {
-        statsMap.set(sheetId, { total: 0, sent: 0, failed: 0, pending: 0 })
+  // جلب الإحصائيات بكفاءة - استخدام count queries لكل ملف بالتوازي
+  const dataWithStats = await Promise.all(
+    sheets.map(async (sheet) => {
+      const [totalRes, sentRes, failedRes, pendingRes] = await Promise.all([
+        supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('sheet_config_id', sheet.id),
+        supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('sheet_config_id', sheet.id)
+          .eq('sync_status', 'sent'),
+        supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('sheet_config_id', sheet.id)
+          .eq('sync_status', 'failed'),
+        supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('sheet_config_id', sheet.id)
+          .eq('sync_status', 'pending'),
+      ])
+
+      return {
+        ...sheet,
+        total_leads: totalRes.count || 0,
+        sent_leads: sentRes.count || 0,
+        failed_leads: failedRes.count || 0,
+        pending_leads: pendingRes.count || 0,
       }
-      
-      const stats = statsMap.get(sheetId)
-      stats.total += 1
-      
-      if (lead.sync_status === 'sent') stats.sent += 1
-      else if (lead.sync_status === 'failed') stats.failed += 1
-      else if (lead.sync_status === 'pending') stats.pending += 1
     })
-  }
-
-  const dataWithStats = sheets.map((sheet) => ({
-    ...sheet,
-    total_leads: statsMap.get(sheet.id)?.total || 0,
-    sent_leads: statsMap.get(sheet.id)?.sent || 0,
-    failed_leads: statsMap.get(sheet.id)?.failed || 0,
-    pending_leads: statsMap.get(sheet.id)?.pending || 0,
-  }))
+  )
 
   return NextResponse.json({ data: dataWithStats })
 }
+
 
 export async function POST(request: Request) {
   const supabase = await createClient()
