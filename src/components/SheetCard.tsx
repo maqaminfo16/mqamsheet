@@ -29,10 +29,10 @@ export function SheetCard({ sheet }: SheetCardProps) {
     <Card 
       style={{ padding: '20px' }}
       title={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.1rem' }}>
-          <span style={{ display: 'inline-block', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={sheet.name}>{sheet.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.1rem', flexWrap: 'wrap' }}>
+          <span style={{ flex: 1, minWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={sheet.name}>{sheet.name}</span>
           {sheet.source && (
-            <Badge variant="info">{sheet.source}</Badge>
+            <Badge variant="info" style={{ flexShrink: 0 }}>{sheet.source}</Badge>
           )}
         </div>
       }

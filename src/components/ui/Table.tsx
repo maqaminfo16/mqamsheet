@@ -4,6 +4,7 @@ export interface Column<T> {
   key: string;
   header: string;
   render?: (row: T) => React.ReactNode;
+  hideOnMobile?: boolean;
 }
 
 export interface TableProps<T> {
@@ -15,12 +16,12 @@ export interface TableProps<T> {
 
 export function Table<T extends Record<string, any>>({ columns, data, emptyMessage = 'لا توجد بيانات', className = '' }: TableProps<T>) {
   return (
-    <div style={{ overflowX: 'auto', width: '100%' }}>
+    <div className="table-container">
       <table className={`table ${className}`}>
         <thead>
           <tr>
             {columns.map(col => (
-              <th key={col.key}>{col.header}</th>
+              <th key={col.key} className={col.hideOnMobile ? 'hide-on-mobile' : ''}>{col.header}</th>
             ))}
           </tr>
         </thead>
@@ -35,7 +36,7 @@ export function Table<T extends Record<string, any>>({ columns, data, emptyMessa
             data.map((row, i) => (
               <tr key={row.id || i}>
                 {columns.map(col => (
-                  <td key={col.key}>
+                  <td key={col.key} className={col.hideOnMobile ? 'hide-on-mobile' : ''}>
                     {col.render ? col.render(row) : row[col.key]}
                   </td>
                 ))}

@@ -31,12 +31,13 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { direction: rtl; }
+html { direction: rtl; overflow-x: hidden; }
 body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .glass {
@@ -196,6 +197,11 @@ body {
   background: var(--bg-card-hover);
 }
 
+.main-content {
+  margin-right: 260px;
+  min-width: 0; /* Prevents flex child from overflowing screen on mobile */
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(100%);
@@ -204,9 +210,32 @@ body {
   .sidebar.open {
     transform: translateX(0);
   }
-  .main-content { margin-right: 0 !important; }
+  .main-content { 
+    margin-right: 0 !important; 
+  }
+  .main-wrapper {
+    padding: 1rem !important; /* Overrides inline padding on mobile */
+  }
   .mobile-menu-btn { display: flex !important; }
+  .mobile-topbar { display: flex !important; }
+  
+  /* Responsive utilities */
+  .hide-on-mobile { display: none !important; }
+  .page-header { padding: 16px 20px !important; }
+  
+  /* Flex direction utilities */
+  .flex-col-mobile { flex-direction: column !important; align-items: stretch !important; }
+  .gap-sm-mobile { gap: 12px !important; }
+  
+  /* Remove table horizontal scroll on mobile */
+  .table-container { overflow-x: hidden !important; }
+  .table th, .table td { padding: 8px 12px !important; font-size: 0.85rem; }
+  
+  /* Search input full width */
+  .search-input-mobile { width: 100% !important; }
 }
+
+.table-container { overflow-x: auto; width: 100%; }
 
 /* إخفاء أزرار الزيادة والنقصان في حقول الأرقام */
 input[type="number"]::-webkit-inner-spin-button,

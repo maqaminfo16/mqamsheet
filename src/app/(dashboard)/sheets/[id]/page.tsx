@@ -77,17 +77,25 @@ export default function SheetDetailsPage({ params }: { params: Promise<{ id: str
   if (!config) return <div>الملف غير موجود</div>
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-        <Button variant="ghost" onClick={() => router.push('/sheets')}>
-          <ArrowRight size={20} />
-        </Button>
-        <Header title={config.name} />
-        <Badge variant={config.is_active ? 'success' : 'danger'}>
-          {config.is_active ? 'نشط' : 'متوقف'}
-        </Badge>
-        {config.auto_sync && <Badge variant="info">مزامنة تلقائية</Badge>}
-      </div>
+    <div className="gap-sm-mobile" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <Header 
+        title={
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <Button variant="ghost" onClick={() => router.push('/sheets')} style={{ padding: '8px', flexShrink: 0 }}>
+              <ArrowRight size={20} />
+            </Button>
+            <span style={{ lineHeight: '1.4' }}>{config.name}</span>
+          </div>
+        } 
+        actions={
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <Badge variant={config.is_active ? 'success' : 'danger'}>
+              {config.is_active ? 'نشط' : 'متوقف'}
+            </Badge>
+            {config.auto_sync && <Badge variant="info">مزامنة تلقائية</Badge>}
+          </div>
+        }
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         <Card title="ملخص الإعدادات">

@@ -30,8 +30,8 @@ export default function SheetsPage() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="gap-sm-mobile" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="flex-col-mobile gap-sm-mobile" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Header title="ملفات الشيت" />
         <Button variant="primary" onClick={() => router.push('/sheets/new')}>
           <Plus size={18} />

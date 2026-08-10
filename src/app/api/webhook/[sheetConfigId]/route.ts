@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { cleanSaudiPhone } from '@/lib/phone-cleaner'
 import { buildNuzulPayload, sendToNuzul } from '@/lib/nuzul-sender'
@@ -110,42 +110,48 @@ export async function POST(
         config
       )
 
-      const nuzulResponse = await sendToNuzul(payload)
-      const actionStatus = nuzulResponse.success ? 'sent' : 'failed'
+      after(async () => {
+        try {
+          const nuzulResponse = await sendToNuzul(payload)
+          const actionStatus = nuzulResponse.success ? 'sent' : 'failed'
 
-      // تحديث العميل
-      await supabaseAdmin
-        .from('leads')
-        .update({
-          sync_status: actionStatus,
-          deal_id: nuzulResponse.dealId || null,
-          sync_error: nuzulResponse.error || null,
-          crm_response: nuzulResponse.rawResponse,
-          synced_at: new Date().toISOString()
-        })
-        .eq('id', lead.id)
+          // تحديث العميل
+          await supabaseAdmin
+            .from('leads')
+            .update({
+              sync_status: actionStatus,
+              deal_id: nuzulResponse.dealId || null,
+              sync_error: nuzulResponse.error || null,
+              crm_response: nuzulResponse.rawResponse,
+              synced_at: new Date().toISOString()
+            })
+            .eq('id', lead.id)
 
-      // تسجيل في logs
-      await supabaseAdmin
-        .from('sync_logs')
-        .insert([
-          {
-            lead_id: lead.id,
-            sheet_config_id: sheetConfigId,
-            action: 'auto_sync',
-            status: actionStatus,
-            request_payload: payload,
-            response_code: nuzulResponse.httpCode,
-            response_body: nuzulResponse.rawResponse,
-            error_message: nuzulResponse.error || null
-          }
-        ])
+          // تسجيل في logs
+          await supabaseAdmin
+            .from('sync_logs')
+            .insert([
+              {
+                lead_id: lead.id,
+                sheet_config_id: sheetConfigId,
+                action: 'auto_sync',
+                status: actionStatus,
+                request_payload: payload,
+                response_code: nuzulResponse.httpCode,
+                response_body: nuzulResponse.rawResponse,
+                error_message: nuzulResponse.error || null
+              }
+            ])
+        } catch (e) {
+          console.error('Background sync failed:', e)
+        }
+      })
 
       return NextResponse.json({ 
         success: true, 
         leadId: lead.id, 
-        syncStatus: actionStatus,
-        dealId: nuzulResponse.dealId 
+        syncStatus: 'pending',
+        message: 'Syncing in background'
       })
     }
 

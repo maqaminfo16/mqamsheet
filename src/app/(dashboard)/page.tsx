@@ -62,7 +62,7 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="gap-sm-mobile" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <Header title="لوحة التحكم" />
       
       <StatsCards stats={statCards} loading={loading} />

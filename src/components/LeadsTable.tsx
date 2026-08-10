@@ -51,9 +51,9 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
 
   const columns: Column<Lead>[] = [
     { key: 'full_name', header: 'الاسم' },
-    { key: 'phone_raw', header: 'رقم الجوال (الأصلي)' },
+    { key: 'phone_raw', header: 'رقم الجوال (الأصلي)', hideOnMobile: true },
     { key: 'phone_cleaned', header: 'الرقم المنظف' },
-    { key: 'email', header: 'الإيميل', render: (row) => row.email || '-' },
+    { key: 'email', header: 'الإيميل', render: (row) => row.email || '-', hideOnMobile: true },
     { 
       key: 'sync_status', 
       header: 'الحالة',
@@ -87,18 +87,16 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
         return <Badge variant="warning">⏳ في الانتظار</Badge>;
       }
     },
-    { key: 'deal_id', header: 'معرف الصفقة', render: (row) => row.deal_id || '-' },
+    { key: 'deal_id', header: 'معرف الصفقة', render: (row) => row.deal_id || '-', hideOnMobile: true },
     { 
       key: 'created_at', 
-      header: 'التاريخ والوقت', 
+      header: 'التاريخ', 
+      hideOnMobile: true,
       render: (row) => new Date(row.created_at).toLocaleString('ar-SA', { 
         timeZone: 'Asia/Riyadh',
         year: 'numeric',
         month: 'numeric',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+        day: 'numeric'
       }) 
     },
     {
@@ -121,24 +119,25 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <div className="flex-col-mobile gap-sm-mobile" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <Button variant={filter === 'all' ? 'primary' : 'ghost'} size="sm" onClick={() => setFilter('all')}>الكل</Button>
           <Button variant={filter === 'pending' ? 'primary' : 'ghost'} size="sm" onClick={() => setFilter('pending')}>في الانتظار</Button>
           <Button variant={filter === 'sent' ? 'primary' : 'ghost'} size="sm" onClick={() => setFilter('sent')}>مُرسل</Button>
           <Button variant={filter === 'failed' ? 'primary' : 'ghost'} size="sm" onClick={() => setFilter('failed')}>فشل</Button>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Input 
-            placeholder="بحث بالاسم أو الرقم..." 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)}
-            icon={<Search size={16} />}
-            style={{ width: '250px' }}
-          />
+        <div className="flex-col-mobile gap-sm-mobile" style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+          <div className="search-input-mobile" style={{ width: '250px' }}>
+            <Input 
+              placeholder="بحث بالاسم أو الرقم..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)}
+              icon={<Search size={16} />}
+            />
+          </div>
           <Button variant="primary" icon={<Send size={16} />} onClick={onSyncAll} disabled={loading || !onSyncAll || leads.filter(l => l.sync_status !== 'sent').length === 0}>
-            إرسال الكل في الانتظار
+            إرسال الكل
           </Button>
         </div>
       </div>

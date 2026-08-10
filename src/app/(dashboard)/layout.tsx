@@ -1,4 +1,5 @@
 import { Sidebar } from '@/components/Sidebar'
+import { MobileTopbar } from '@/components/MobileTopbar'
 
 export default function DashboardLayout({
   children,
@@ -8,8 +9,9 @@ export default function DashboardLayout({
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div className="main-content" style={{ flex: 1, marginRight: '260px', display: 'flex', flexDirection: 'column' }}>
-        <main style={{ flex: 1, padding: '2rem', overflowX: 'hidden' }}>
+      <div className="main-content" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <MobileTopbar />
+        <main className="main-wrapper" style={{ flex: 1, padding: '2rem', overflowX: 'hidden' }}>
           {children}
         </main>
       </div>

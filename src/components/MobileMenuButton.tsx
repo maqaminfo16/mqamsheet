@@ -12,8 +12,7 @@ export function MobileMenuButton() {
         background: 'none', 
         border: 'none', 
         cursor: 'pointer', 
-        padding: '4px',
-        marginRight: '12px'
+        padding: '4px'
       }}
       aria-label="Toggle Menu"
     >
