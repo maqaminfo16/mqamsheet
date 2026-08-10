@@ -65,7 +65,19 @@ function setupTrigger() {
 function onSheetChange(e) {
   // السماح بالإضافة وإدراج الصفوف والتعديل اليدوي
   if (!e || (e.changeType !== 'INSERT_ROW' && e.changeType !== 'EDIT')) return;
-  processNewRows();
+
+  // 🔒 قفل لمنع التشغيل المتزامن — إذا كان هناك تشغيل سابق لم ينتهِ، يتم التجاهل
+  var lock = LockService.getScriptLock();
+  var acquired = lock.tryLock(500); // انتظر 500ms فقط
+  if (!acquired) return; // تشغيل آخر قيد التنفيذ — تخطي
+
+  try {
+    // تأخير بسيط لضمان كتابة البيانات بالكامل قبل المعالجة
+    Utilities.sleep(1000);
+    processNewRows();
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -98,6 +110,14 @@ function processNewRows() {
 
     // تخطي الصفوف المعالجة سابقاً
     if (status) return;
+
+    // 🔒 إعادة قراءة الحالة مباشرة من الشيت للتأكد (حماية إضافية ضد التكرار)
+    var liveStatus = String(sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).getValue() || '').trim();
+    if (liveStatus) return;
+
+    // ✅ وضع علامة فوراً قبل الإرسال لمنع أي تشغيل متزامن آخر
+    sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).setValue('Sending...');
+    SpreadsheetApp.flush();
 
     // قراءة البيانات
     var name = getValue_(row, indexes, NAME_COLUMN);

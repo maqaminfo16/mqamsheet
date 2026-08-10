@@ -92,15 +92,18 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
       key: 'created_at', 
       header: 'التاريخ والوقت', 
       hideOnMobile: true,
-      render: (row) => new Date(row.created_at).toLocaleString('ar-SA', { 
-        timeZone: 'Asia/Riyadh',
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      }) 
+      render: (row) => {
+        const d = new Date(row.created_at);
+        const dateStr = d.toLocaleDateString('en-GB', { timeZone: 'Asia/Riyadh' });
+        const timeStr = d.toLocaleTimeString('en-US', { timeZone: 'Asia/Riyadh', hour: '2-digit', minute: '2-digit', hour12: true });
+        const timeAr = timeStr.replace('AM', 'ص').replace('PM', 'م');
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.85rem' }}>{dateStr}</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary, #6b7280)' }}>{timeAr}</span>
+          </div>
+        );
+      }
     },
     {
       key: 'actions',

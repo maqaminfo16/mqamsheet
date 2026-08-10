@@ -61,26 +61,11 @@ export async function POST(
       return NextResponse.json({ error: 'Missing name or phone after parsing' }, { status: 400 })
     }
 
-    // 6.5 Prevent duplicates in the last 5 minutes
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
-    const { data: existingLeads } = await supabaseAdmin
-      .from('leads')
-      .select('id, sync_status')
-      .eq('sheet_config_id', sheetConfigId)
-      .eq('phone_cleaned', phoneCleaned)
-      .gte('created_at', fiveMinutesAgo)
-      .limit(1)
+    // 6.5 مفتاح منع التكرار: sheetConfigId + phone + نافذة 5 دقائق
+    const dedupWindow = Math.floor(Date.now() / (5 * 60 * 1000))
+    const dedupKey = `${sheetConfigId}:${phoneCleaned}:${dedupWindow}`
 
-    if (existingLeads && existingLeads.length > 0) {
-      return NextResponse.json({ 
-        success: true, 
-        leadId: existingLeads[0].id, 
-        syncStatus: existingLeads[0].sync_status,
-        message: 'Lead duplicated within 5 minutes, ignored.'
-      })
-    }
-
-    // 7. حفظ العميل
+    // 7. حفظ العميل مع مفتاح منع التكرار
     const { data: lead, error: leadError } = await supabaseAdmin
       .from('leads')
       .insert([
@@ -93,14 +78,36 @@ export async function POST(
           phone_cleaned: phoneCleaned,
           email: email,
           raw_data: body,
-          sync_status: 'pending'
+          sync_status: 'pending',
+          dedup_key: dedupKey
         }
       ])
       .select()
       .single()
 
-    if (leadError || !lead) {
-      return NextResponse.json({ error: leadError?.message || 'Failed to save lead' }, { status: 500 })
+    // إذا فشل الإدخال بسبب تكرار مفتاح dedup_key (unique constraint)
+    if (leadError) {
+      if (leadError.code === '23505') {
+        // duplicate key — العميل موجود مسبقاً
+        const { data: existingLead } = await supabaseAdmin
+          .from('leads')
+          .select('id, sync_status')
+          .eq('dedup_key', dedupKey)
+          .limit(1)
+          .single()
+
+        return NextResponse.json({ 
+          success: true, 
+          leadId: existingLead?.id, 
+          syncStatus: existingLead?.sync_status,
+          message: 'Duplicate lead ignored.'
+        })
+      }
+      return NextResponse.json({ error: leadError.message || 'Failed to save lead' }, { status: 500 })
+    }
+
+    if (!lead) {
+      return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 })
     }
 
     // 8. المزامنة التلقائية إذا كانت مفعلة
