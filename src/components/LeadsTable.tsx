@@ -90,13 +90,16 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
     { key: 'deal_id', header: 'معرف الصفقة', render: (row) => row.deal_id || '-', hideOnMobile: true },
     { 
       key: 'created_at', 
-      header: 'التاريخ', 
+      header: 'التاريخ والوقت', 
       hideOnMobile: true,
       render: (row) => new Date(row.created_at).toLocaleString('ar-SA', { 
         timeZone: 'Asia/Riyadh',
         year: 'numeric',
         month: 'numeric',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
       }) 
     },
     {
