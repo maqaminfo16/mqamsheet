@@ -87,7 +87,13 @@ export async function sendToNuzul(payload: NuzulPayload): Promise<NuzulResponse>
       body: JSON.stringify(payload),
     });
 
-    const body = await response.json().catch(() => response.text());
+    const textBody = await response.text();
+    let body;
+    try {
+      body = JSON.parse(textBody);
+    } catch {
+      body = textBody;
+    }
 
     if (response.ok) {
       const dealId = body?.data?.id || '';
