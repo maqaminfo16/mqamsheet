@@ -106,9 +106,9 @@ export default function SheetDetailsPage({ params }: { params: Promise<{ id: str
             <div><strong>الغرض:</strong> {config.purpose || '-'}</div>
           </div>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            {/* <Button variant="secondary" onClick={() => router.push(`/sheets/${id}/edit`)}>
+            <Button variant="secondary" onClick={() => router.push(`/sheets/${id}/edit`)}>
               <Edit size={16} /> تعديل
-            </Button> */}
+            </Button>
             <Button variant="secondary" onClick={fetchScript}>
               <Code size={16} /> كود Apps Script
             </Button>
