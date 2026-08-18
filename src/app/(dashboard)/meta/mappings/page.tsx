@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
-import { Plus, Edit } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MetaMappingsPage() {
@@ -30,6 +30,25 @@ export default function MetaMappingsPage() {
     fetchMappings();
   }, []);
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا النموذج؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    
+    try {
+      const res = await fetch(`/api/meta/form-mappings/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setMappings(prev => prev.filter(m => m.id !== id));
+      } else {
+        const error = await res.json();
+        alert('حدث خطأ أثناء الحذف: ' + (error.error || 'Unknown error'));
+      }
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert('حدث خطأ: ' + err.message);
+    }
+  };
+
   const columns = [
     { key: 'form_id', header: 'Form ID' },
     { key: 'form_name', header: 'اسم النموذج' },
@@ -41,11 +60,17 @@ export default function MetaMappingsPage() {
       </Badge>
     )},
     { key: 'actions', header: 'إجراءات', render: (row: Record<string, unknown>) => (
-      <Link href={`/meta/mappings/${row.id}`} style={{ textDecoration: 'none' }}>
-        <Button variant="secondary" icon={<Edit size={16} />}>
-          تعديل
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <Link href={`/meta/mappings/${row.id}/details`} style={{ textDecoration: 'none' }}>
+          <Button variant="secondary" icon={<Eye size={16} />}>تفاصيل</Button>
+        </Link>
+        <Link href={`/meta/mappings/${row.id}`} style={{ textDecoration: 'none' }}>
+          <Button variant="secondary" icon={<Edit size={16} />}>تعديل</Button>
+        </Link>
+        <Button variant="danger" icon={<Trash2 size={16} />} onClick={() => handleDelete(row.id as string)}>
+          حذف
         </Button>
-      </Link>
+      </div>
     )}
   ];
 
