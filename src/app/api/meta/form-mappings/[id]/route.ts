@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin as supabase } from '@/lib/supabase/admin';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
-  const supabase = await createClient();
+  // supabaseAdmin is used directly
 
   const { data, error } = await supabase
     .from('meta_form_mappings')
@@ -26,7 +26,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
-  const supabase = await createClient();
+  // supabaseAdmin is used directly
 
   try {
     const body = await request.json();
@@ -54,7 +54,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
-  const supabase = await createClient();
+  // supabaseAdmin is used directly
 
   const { error } = await supabase
     .from('meta_form_mappings')

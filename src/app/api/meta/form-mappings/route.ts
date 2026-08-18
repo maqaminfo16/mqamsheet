@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin as supabase } from '@/lib/supabase/admin';
 
 export async function GET() {
-  const supabase = await createClient();
+  // supabaseAdmin is used directly
 
   const { data, error } = await supabase
     .from('meta_form_mappings')
@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  // supabaseAdmin is used directly
 
   try {
     const body = await request.json();
