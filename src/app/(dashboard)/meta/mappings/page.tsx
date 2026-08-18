@@ -33,8 +33,8 @@ export default function MetaMappingsPage() {
   const columns = [
     { key: 'form_id', header: 'Form ID' },
     { key: 'form_name', header: 'اسم النموذج' },
-    { key: 'project_id', header: 'Project ID', render: (row: Record<string, unknown>) => row.project_id || '-' },
-    { key: 'property_id', header: 'Property ID', render: (row: Record<string, unknown>) => row.property_id || '-' },
+    { key: 'project_id', header: 'Project ID', render: (row: Record<string, unknown>) => (row.project_id as string) || '-' },
+    { key: 'property_id', header: 'Property ID', render: (row: Record<string, unknown>) => (row.property_id as string) || '-' },
     { key: 'is_active', header: 'الحالة', render: (row: Record<string, unknown>) => (
       <Badge variant={row.is_active ? 'success' : 'danger'}>
         {row.is_active ? 'نشط' : 'متوقف'}

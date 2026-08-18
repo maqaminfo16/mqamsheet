@@ -33,7 +33,7 @@ export async function processMetaLead(
         page_id: pageId,
         form_id: formId,
         ad_id: adId,
-        meta_created_time: new Date(createdTime * 1000).toISOString(),
+        meta_created_time: new Date(Number(createdTime) * 1000).toISOString(),
         raw_payload: rawPayload,
         status: 'processing'
       }])

@@ -76,14 +76,14 @@ export default function NewMetaMappingPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <Input
                 label="Form ID (مطلوب)"
-                value={data.form_id}
+                value={data.form_id as string}
                 onChange={(e) => setData({ ...data, form_id: e.target.value })}
                 error={errors.form_id}
                 hint="معرف النموذج من Meta"
               />
               <Input
                 label="اسم النموذج (مطلوب)"
-                value={data.form_name}
+                value={data.form_name as string}
                 onChange={(e) => setData({ ...data, form_name: e.target.value })}
                 error={errors.form_name}
                 hint="اسم للتعرف على النموذج داخلياً"

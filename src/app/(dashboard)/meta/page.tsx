@@ -43,7 +43,7 @@ export default function MetaLeadsPage() {
 
   const columns = [
     { key: 'meta_lead_id', header: 'Lead ID' },
-    { key: 'form_name', header: 'النموذج', render: (row: Record<string, unknown>) => (row.meta_form_mappings as Record<string, unknown>)?.form_name || row.form_id },
+    { key: 'form_name', header: 'النموذج', render: (row: Record<string, unknown>) => ((row.meta_form_mappings as Record<string, unknown>)?.form_name as string) || (row.form_id as string) },
     { key: 'status', header: 'الحالة', render: (row: Record<string, unknown>) => {
       const s = row.status;
       if (s === 'synced') return <Badge variant="success">✅ تمت المزامنة</Badge>;
