@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
-import { Plus } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MetaMappingsPage() {
@@ -39,6 +39,13 @@ export default function MetaMappingsPage() {
       <Badge variant={row.is_active ? 'success' : 'danger'}>
         {row.is_active ? 'نشط' : 'متوقف'}
       </Badge>
+    )},
+    { key: 'actions', header: 'إجراءات', render: (row: Record<string, unknown>) => (
+      <Link href={`/meta/mappings/${row.id}`} style={{ textDecoration: 'none' }}>
+        <Button variant="secondary" icon={<Edit size={16} />}>
+          تعديل
+        </Button>
+      </Link>
     )}
   ];
 
