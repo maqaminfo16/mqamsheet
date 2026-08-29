@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Header } from '@/components/Header'
 import { StatsCards } from '@/components/StatsCards'
 import { LeadsTable } from '@/components/LeadsTable'
@@ -12,47 +12,77 @@ export default function DashboardPage() {
   const [recentLeads, setRecentLeads] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [sheetsRes, leadsRes] = await Promise.all([
-          fetch('/api/sheets'),
-          fetch('/api/leads?limit=10')
-        ])
+  const fetchData = useCallback(async () => {
+    try {
+      const [sheetsRes, leadsRes] = await Promise.all([
+        fetch('/api/sheets'),
+        fetch('/api/leads?limit=1000')
+      ])
 
-        if (sheetsRes.ok) {
-          const { data } = await sheetsRes.json()
-          let totalLeads = 0
-          let totalSent = 0
-          let totalFailed = 0
-          
-          data.forEach((s: any) => {
-            totalLeads += s.total_leads || 0
-            totalSent += s.sent_leads || 0
-            totalFailed += s.failed_leads || 0
-          })
+      if (sheetsRes.ok) {
+        const { data } = await sheetsRes.json()
+        let totalLeads = 0
+        let totalSent = 0
+        let totalFailed = 0
+        
+        data.forEach((s: any) => {
+          totalLeads += s.total_leads || 0
+          totalSent += s.sent_leads || 0
+          totalFailed += s.failed_leads || 0
+        })
 
-          setStats({
-            sheets: data.length,
-            leads: totalLeads,
-            sent: totalSent,
-            failed: totalFailed
-          })
-        }
-
-        if (leadsRes.ok) {
-          const { data } = await leadsRes.json()
-          setRecentLeads(data || [])
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
+        setStats({
+          sheets: data.length,
+          leads: totalLeads,
+          sent: totalSent,
+          failed: totalFailed
+        })
       }
-    }
 
-    fetchData()
+      if (leadsRes.ok) {
+        const { data } = await leadsRes.json()
+        setRecentLeads(data || [])
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const handleSync = async (leadId: string) => {
+    setLoading(true)
+    try {
+      await fetch('/api/leads/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_ids: [leadId] })
+      })
+      await fetchData()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSyncAll = async () => {
+    setLoading(true)
+    try {
+      await fetch('/api/leads/sync-all', {
+        method: 'POST'
+      })
+      await fetchData()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const statCards = [
     { title: 'إجمالي الملفات', value: stats.sheets, icon: <FileSpreadsheet size={24} />, color: 'var(--info)' },
@@ -72,7 +102,12 @@ export default function DashboardPage() {
           آخر العملاء المضافين
         </h2>
         <Card>
-          <LeadsTable leads={recentLeads} loading={loading} />
+          <LeadsTable 
+            leads={recentLeads} 
+            loading={loading} 
+            onSync={handleSync}
+            onSyncAll={handleSyncAll}
+          />
         </Card>
       </div>
     </div>

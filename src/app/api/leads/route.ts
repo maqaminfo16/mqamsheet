@@ -6,7 +6,8 @@ export async function GET(request: Request) {
   const sheet_config_id = searchParams.get('sheet_config_id')
   const status = searchParams.get('status')
   const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '50')
+  const limitParam = searchParams.get('limit')
+  const limit = limitParam ? parseInt(limitParam) : 1000
   const offset = (page - 1) * limit
 
   const supabase = await createClient()

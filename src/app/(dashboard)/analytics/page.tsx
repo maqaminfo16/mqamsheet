@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { Skeleton, SkeletonChart, SkeletonSourceBreakdown } from '@/components/ui/Loading';
 
 interface SummaryStats {
   total: number;
@@ -640,13 +641,19 @@ export default function AnalyticsPage() {
         {/* إجمالي المسجلين */}
         <Card style={{ padding: '20px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '65%' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
                 إجمالي المسجلين
               </span>
-              <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
-                {loading ? '...' : summary.total.toLocaleString()}
-              </span>
+              <div style={{ minHeight: '38px', display: 'flex', alignItems: 'center' }}>
+                {loading ? (
+                  <Skeleton width="90px" height="34px" borderRadius="6px" />
+                ) : (
+                  <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                    {summary.total.toLocaleString()}
+                  </span>
+                )}
+              </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 {selectedSource !== 'all' ? `من مصدر ${selectedSource}` : 'من جميع المصادر'}
               </span>
@@ -671,17 +678,23 @@ export default function AnalyticsPage() {
         {/* تم الإرسال بنجاح */}
         <Card style={{ padding: '20px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '65%' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
                 تم الإرسال بنجاح
               </span>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--success)', lineHeight: 1.1 }}>
-                  {loading ? '...' : summary.sent.toLocaleString()}
-                </span>
-                <Badge variant="success">
-                  {summary.successRate}%
-                </Badge>
+              <div style={{ minHeight: '38px', display: 'flex', alignItems: 'center' }}>
+                {loading ? (
+                  <Skeleton width="90px" height="34px" borderRadius="6px" />
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--success)', lineHeight: 1.1 }}>
+                      {summary.sent.toLocaleString()}
+                    </span>
+                    <Badge variant="success">
+                      {summary.successRate}%
+                    </Badge>
+                  </div>
+                )}
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 تم الربط بـ Maqam CRM
@@ -707,18 +720,24 @@ export default function AnalyticsPage() {
         {/* فشل الإرسال */}
         <Card style={{ padding: '20px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '65%' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
                 فشل الإرسال
               </span>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--danger)', lineHeight: 1.1 }}>
-                  {loading ? '...' : summary.failed.toLocaleString()}
-                </span>
-                {summary.failed > 0 && (
-                  <Badge variant="danger">
-                    {summary.failureRate}%
-                  </Badge>
+              <div style={{ minHeight: '38px', display: 'flex', alignItems: 'center' }}>
+                {loading ? (
+                  <Skeleton width="90px" height="34px" borderRadius="6px" />
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--danger)', lineHeight: 1.1 }}>
+                      {summary.failed.toLocaleString()}
+                    </span>
+                    {summary.failed > 0 && (
+                      <Badge variant="danger">
+                        {summary.failureRate}%
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -745,18 +764,24 @@ export default function AnalyticsPage() {
         {/* في الانتظار */}
         <Card style={{ padding: '20px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '65%' }}>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
                 في الانتظار
               </span>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--warning)', lineHeight: 1.1 }}>
-                  {loading ? '...' : summary.pending.toLocaleString()}
-                </span>
-                {summary.pending > 0 && (
-                  <Badge variant="warning">
-                    {summary.pendingRate}%
-                  </Badge>
+              <div style={{ minHeight: '38px', display: 'flex', alignItems: 'center' }}>
+                {loading ? (
+                  <Skeleton width="90px" height="34px" borderRadius="6px" />
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--warning)', lineHeight: 1.1 }}>
+                      {summary.pending.toLocaleString()}
+                    </span>
+                    {summary.pending > 0 && (
+                      <Badge variant="warning">
+                        {summary.pendingRate}%
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
@@ -799,9 +824,7 @@ export default function AnalyticsPage() {
           </div>
 
           {loading ? (
-            <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              جاري تحميل المخطط...
-            </div>
+            <SkeletonChart bars={dailyTrend.length > 0 ? dailyTrend.length : 18} />
           ) : dailyTrend.length === 0 ? (
             <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
               لا توجد بيانات تسجيل في هذه الفترة
@@ -887,9 +910,7 @@ export default function AnalyticsPage() {
           </div>
 
           {loading ? (
-            <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              جاري تحميل المصادر...
-            </div>
+            <SkeletonSourceBreakdown items={sourceBreakdown.length > 0 ? sourceBreakdown.length : 4} />
           ) : sourceBreakdown.length === 0 ? (
             <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
               لا توجد مصادر مطابقة
@@ -1012,11 +1033,18 @@ export default function AnalyticsPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
-                      جاري تحميل بيانات العملاء...
-                    </td>
-                  </tr>
+                  Array.from({ length: 6 }).map((_, r) => (
+                    <tr key={`sk-lead-row-${r}`}>
+                      <td><Skeleton width="75%" height="16px" /></td>
+                      <td><Skeleton width="85%" height="16px" /></td>
+                      <td><Skeleton width="60px" height="22px" borderRadius="10px" /></td>
+                      <td><Skeleton width="70%" height="16px" /></td>
+                      <td><Skeleton width="70px" height="22px" borderRadius="10px" /></td>
+                      <td className="hide-on-mobile"><Skeleton width="60px" height="16px" /></td>
+                      <td className="hide-on-mobile"><Skeleton width="80px" height="16px" /></td>
+                      <td><Skeleton width="65px" height="30px" borderRadius="var(--radius-md)" /></td>
+                    </tr>
+                  ))
                 ) : leads.length === 0 ? (
                   <tr>
                     <td colSpan={8} style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
@@ -1161,8 +1189,9 @@ export default function AnalyticsPage() {
                     cursor: 'pointer'
                   }}
                 >
-                  <option value={30}>30</option>
-                  <option value={60}>60</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
                   <option value={100}>100</option>
                 </select>
               </div>

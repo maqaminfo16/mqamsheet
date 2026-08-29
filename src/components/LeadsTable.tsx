@@ -25,6 +25,37 @@ export interface LeadsTableProps {
   loading?: boolean;
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      title="نسخ"
+      style={{
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '2px 4px',
+        color: copied ? 'var(--success, #10b981)' : 'var(--text-secondary, #6b7280)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '2px',
+        borderRadius: '4px',
+        fontSize: '0.75rem'
+      }}
+    >
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+      {copied && <span>تم</span>}
+    </button>
+  );
+}
+
 function CopyErrorButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
@@ -43,7 +74,7 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
   const [filter, setFilter] = useState<'all' | 'pending' | 'sent' | 'failed'>('all');
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -51,12 +82,19 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
 
   const filteredLeads = leads.filter(lead => {
     if (filter !== 'all' && lead.sync_status !== filter) return false;
-    if (search && !lead.full_name.includes(search) && !lead.phone_cleaned.includes(search)) return false;
+    if (search) {
+      const q = search.toLowerCase().trim();
+      const nameMatch = lead.full_name ? lead.full_name.toLowerCase().includes(q) : false;
+      const phoneCleanMatch = lead.phone_cleaned ? lead.phone_cleaned.includes(q) : false;
+      const phoneRawMatch = lead.phone_raw ? lead.phone_raw.includes(q) : false;
+      const emailMatch = lead.email ? lead.email.toLowerCase().includes(q) : false;
+      if (!nameMatch && !phoneCleanMatch && !phoneRawMatch && !emailMatch) return false;
+    }
     return true;
   });
 
   const totalItems = filteredLeads.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const paginatedLeads = filteredLeads.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -67,7 +105,20 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
   const columns: Column<Lead>[] = [
     { key: 'full_name', header: 'الاسم' },
     { key: 'phone_raw', header: 'رقم الجوال (الأصلي)', hideOnMobile: true },
-    { key: 'phone_cleaned', header: 'الرقم المنظف' },
+    { 
+      key: 'phone_cleaned', 
+      header: 'الرقم المنظف',
+      render: (row) => {
+        const phone = row.phone_cleaned || row.phone_raw;
+        if (!phone) return '-';
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', direction: 'ltr', justifyContent: 'flex-end' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{phone}</span>
+            <CopyButton text={phone} />
+          </div>
+        );
+      }
+    },
     { key: 'email', header: 'الإيميل', render: (row) => row.email || '-', hideOnMobile: true },
     { 
       key: 'sync_status', 
@@ -194,8 +245,9 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
                   cursor: 'pointer'
                 }}
               >
-                <option value={30} style={{ color: '#000' }}>30</option>
-                <option value={60} style={{ color: '#000' }}>60</option>
+                <option value={10} style={{ color: '#000' }}>10</option>
+                <option value={25} style={{ color: '#000' }}>25</option>
+                <option value={50} style={{ color: '#000' }}>50</option>
                 <option value={100} style={{ color: '#000' }}>100</option>
               </select>
             </div>

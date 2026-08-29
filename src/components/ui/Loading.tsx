@@ -314,7 +314,78 @@ export function SkeletonDetails() {
 }
 
 // -------------------------------------------------------------
-// 8. Top Route Transition Progress Bar
+// 8. Skeleton Chart (Analytics)
+// -------------------------------------------------------------
+export function SkeletonChart({ bars = 18 }: { bars?: number }) {
+  const sampleHeights = [35, 60, 45, 80, 50, 95, 70, 40, 85, 65, 30, 75, 90, 55, 60, 45, 80, 70];
+  return (
+    <div
+      style={{
+        height: '180px',
+        display: 'flex',
+        alignItems: 'flex-end',
+        gap: '6px',
+        paddingTop: '20px',
+        paddingBottom: '8px',
+        borderBottom: '1px solid var(--border)'
+      }}
+    >
+      {Array.from({ length: bars }).map((_, i) => {
+        const height = sampleHeights[i % sampleHeights.length];
+        return (
+          <div
+            key={i}
+            style={{
+              flex: 1,
+              height: `${height}%`,
+              borderRadius: '4px 4px 0 0',
+              overflow: 'hidden'
+            }}
+          >
+            <Skeleton width="100%" height="100%" borderRadius="4px 4px 0 0" />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// -------------------------------------------------------------
+// 9. Skeleton Source Breakdown (Analytics)
+// -------------------------------------------------------------
+export function SkeletonSourceBreakdown({ items = 4 }: { items?: number }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '250px' }}>
+      {Array.from({ length: items }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            padding: '10px 12px',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border)',
+            backgroundColor: 'rgba(0,0,0,0.02)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Skeleton width="40%" height="16px" />
+            <Skeleton width="50px" height="16px" />
+          </div>
+          <Skeleton width="100%" height="6px" borderRadius="3px" />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Skeleton width="30%" height="12px" />
+            <Skeleton width="25%" height="12px" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// -------------------------------------------------------------
+// 10. Top Route Transition Progress Bar
 // -------------------------------------------------------------
 export function TopProgressBar() {
   const pathname = usePathname();
