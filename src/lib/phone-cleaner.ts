@@ -1,4 +1,15 @@
 /**
+ * يحوّل الأرقام العربية المشرقية (٠-٩) والفارسية (۰-۹) إلى أرقام إنجليزية (0-9)
+ */
+export function convertArabicToEnglishDigits(str: string): string {
+  const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+  const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+  return str
+    .replace(/[٠-٩]/g, (d) => String(arabicDigits.indexOf(d)))
+    .replace(/[۰-۹]/g, (d) => String(persianDigits.indexOf(d)));
+}
+
+/**
  * ينظّف رقم الجوال ويحوّله للصيغة السعودية: 966XXXXXXXXX
  * بدون + أو 00 في البداية — هذا شرط Nuzul CRM.
  */
@@ -6,6 +17,9 @@ export function cleanSaudiPhone(phone: string | number | null | undefined): stri
   if (!phone) return '';
 
   let cleaned = String(phone).trim();
+
+  // الخطوة 0: تحويل الأرقام العربية المشرقية والفارسية إلى أرقام إنجليزية
+  cleaned = convertArabicToEnglishDigits(cleaned);
 
   // الخطوة 1: إزالة كل شيء ما عدا الأرقام و + البادئة
   cleaned = cleaned.replace(/[^\d+]/g, '');
