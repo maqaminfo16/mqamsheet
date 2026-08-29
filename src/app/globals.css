@@ -62,8 +62,74 @@ body {
   to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+.skeleton {
+  background: #e2e8f0;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.skeleton::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite ease-in-out;
+  content: '';
+}
+
+.top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-gold), var(--accent-primary));
+  background-size: 200% 100%;
+  animation: top-bar-anim 1.5s infinite linear;
+  z-index: 9999;
+  box-shadow: 0 0 8px rgba(10, 59, 84, 0.4);
+}
+
+@keyframes top-bar-anim {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .btn-primary {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/Header'
 import { SheetCard } from '@/components/SheetCard'
 import { Button } from '@/components/ui/Button'
+import { SkeletonSheetCard } from '@/components/ui/Loading'
 import { Plus } from 'lucide-react'
 
 export default function SheetsPage() {
@@ -40,7 +41,11 @@ export default function SheetsPage() {
       </div>
 
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)' }}>جاري التحميل...</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonSheetCard key={i} />
+          ))}
+        </div>
       ) : sheets.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-muted)' }}>
           لا توجد ملفات حالياً. أضف ملفاً جديداً لتبدأ.

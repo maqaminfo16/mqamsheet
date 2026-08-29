@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Table } from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { SkeletonDetails } from '@/components/ui/Loading';
 import { ArrowRight } from 'lucide-react';
 
 export default function MetaMappingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -64,7 +65,7 @@ export default function MetaMappingDetailsPage({ params }: { params: Promise<{ i
   ];
 
   if (fetching) {
-    return <div style={{ padding: '2rem' }}>جاري التحميل...</div>;
+    return <SkeletonDetails />;
   }
 
   if (!mapping) return null;

@@ -164,7 +164,7 @@ export function LeadsTable({ leads, onSync, onSyncAll, loading }: LeadsTableProp
       </div>
       
       <div className="glass" style={{ padding: '20px' }}>
-        <Table columns={columns} data={paginatedLeads} emptyMessage="لا يوجد عملاء مطابقين للبحث" />
+        <Table columns={columns} data={paginatedLeads} loading={loading} emptyMessage="لا يوجد عملاء مطابقين للبحث" />
         
         <div style={{ 
           marginTop: '16px', 

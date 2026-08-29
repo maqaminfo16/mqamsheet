@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Skeleton, SkeletonForm } from '@/components/ui/Loading';
 import { StepCRM } from '@/components/SheetForm/StepCRM';
 
 export default function EditMetaMappingPage({ params }: { params: Promise<{ id: string }> }) {
@@ -92,7 +93,18 @@ export default function EditMetaMappingPage({ params }: { params: Promise<{ id: 
   };
 
   if (fetching) {
-    return <div style={{ padding: '2rem' }}>جاري التحميل...</div>;
+    return (
+      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <Skeleton width="200px" height="32px" borderRadius="var(--radius-md)" />
+        <div style={{ maxWidth: '800px' }}>
+          <Card>
+            <div style={{ padding: '12px' }}>
+              <SkeletonForm fields={4} />
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from './ui/Card';
+import { SkeletonStats } from './ui/Loading';
 
 export interface Stat {
   title: string;
@@ -14,7 +15,11 @@ export interface StatsCardsProps {
   loading?: boolean;
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
+export function StatsCards({ stats, loading = false }: StatsCardsProps) {
+  if (loading) {
+    return <SkeletonStats count={stats.length || 4} />;
+  }
+
   return (
     <div className="gap-sm-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
       {stats.map((stat, i) => (

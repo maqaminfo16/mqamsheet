@@ -11,6 +11,7 @@ import Link from 'next/link';
 
 export default function MetaLeadsPage() {
   const [leads, setLeads] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
   const fetchLeads = async () => {
@@ -22,6 +23,8 @@ export default function MetaLeadsPage() {
       }
     } catch {
       // ignore
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,7 +73,7 @@ export default function MetaLeadsPage() {
       </div>
 
       <Card title="آخر العملاء (Meta)">
-        <Table columns={columns} data={leads} emptyMessage="لا يوجد عملاء من Meta حالياً" />
+        <Table columns={columns} data={leads} loading={loading} emptyMessage="لا يوجد عملاء من Meta حالياً" />
       </Card>
     </div>
   );

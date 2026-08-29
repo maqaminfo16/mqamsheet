@@ -11,8 +11,7 @@ import Link from 'next/link';
 
 export default function MetaMappingsPage() {
   const [mappings, setMappings] = useState<Record<string, unknown>[]>([]);
-  // loading state omitted since it's unused or not necessary for simple display
-
+  const [loading, setLoading] = useState(true);
 
   const fetchMappings = async () => {
     try {
@@ -23,6 +22,8 @@ export default function MetaMappingsPage() {
       }
     } catch {
       // ignore
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,7 +79,7 @@ export default function MetaMappingsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <Header title="نماذج Meta (Mappings)" />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <p style={{ color: 'var(--text-secondary)' }}>
           اربط Form ID الخاص بـ Meta مع إعدادات Nuzul CRM.
         </p>
@@ -88,7 +89,7 @@ export default function MetaMappingsPage() {
       </div>
 
       <Card>
-        <Table columns={columns} data={mappings} emptyMessage="لا يوجد نماذج مربوطة" />
+        <Table columns={columns} data={mappings} loading={loading} emptyMessage="لا يوجد نماذج مربوطة" />
       </Card>
     </div>
   );

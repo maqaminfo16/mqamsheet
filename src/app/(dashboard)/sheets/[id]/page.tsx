@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/Modal'
 import { CodeBlock } from '@/components/ui/CodeBlock'
 import { LeadsTable } from '@/components/LeadsTable'
 import { ArrowRight, Trash2, Edit, Code } from 'lucide-react'
+import { SkeletonDetails } from '@/components/ui/Loading'
 
 export default function SheetDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -73,8 +74,8 @@ export default function SheetDetailsPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  if (loading) return <div>جاري التحميل...</div>
-  if (!config) return <div>الملف غير موجود</div>
+  if (loading && !config) return <SkeletonDetails />
+  if (!config) return <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-muted)' }}>الملف غير موجود</div>
 
   return (
     <div className="gap-sm-mobile" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
