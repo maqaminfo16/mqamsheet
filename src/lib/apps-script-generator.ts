@@ -63,17 +63,17 @@ function setupTrigger() {
  * يتم استدعاؤها تلقائياً عند أي تغيير في الشيت
  */
 function onSheetChange(e) {
-  // السماح بالإضافة وإدراج الصفوف والتعديل اليدوي
-  if (!e || (e.changeType !== 'INSERT_ROW' && e.changeType !== 'EDIT')) return;
+  // السماح بالإضافة وإدراج الصفوف والتعديل
+  if (e && e.changeType && e.changeType !== 'INSERT_ROW' && e.changeType !== 'EDIT' && e.changeType !== 'OTHER') return;
 
-  // 🔒 قفل لمنع التشغيل المتزامن — إذا كان هناك تشغيل سابق لم ينتهِ، يتم التجاهل
+  // 🔒 قفل لمنع التعارض مع زيادة وقت الانتظار لاستيعاب وصول عدة ليدات معاً من الإعلانات
   var lock = LockService.getScriptLock();
-  var acquired = lock.tryLock(500); // انتظر 500ms فقط
-  if (!acquired) return; // تشغيل آخر قيد التنفيذ — تخطي
+  var acquired = lock.tryLock(10000); // انتظر حتى 10 ثوانٍ
+  if (!acquired) return; // تشغيل آخر قيد التنفيذ
 
   try {
-    // تأخير بسيط لضمان كتابة البيانات بالكامل قبل المعالجة
-    Utilities.sleep(1000);
+    // تأخير لضمان كتابة وتثبيت كافة بيانات الأعمدة في الشيت من قبل واجهات الربط
+    Utilities.sleep(1500);
     processNewRows();
   } finally {
     lock.releaseLock();
@@ -81,7 +81,7 @@ function onSheetChange(e) {
 }
 
 /**
- * معالجة وإرسال الصفوف الجديدة (بدون حالة)
+ * معالجة وإرسال الصفوف الجديدة
  */
 function processNewRows() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -108,23 +108,23 @@ function processNewRows() {
     var sheetRow = i + 2;
     var status = String(row[indexes[STATUS_COLUMN]] || '').trim();
 
-    // تخطي الصفوف المعالجة سابقاً
-    if (status) return;
+    // تخطي الصفوف المرسلة بنجاح فقط
+    if (status === 'Sent') return;
 
-    // 🔒 إعادة قراءة الحالة مباشرة من الشيت للتأكد (حماية إضافية ضد التكرار)
-    var liveStatus = String(sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).getValue() || '').trim();
-    if (liveStatus) return;
-
-    // ✅ وضع علامة فوراً قبل الإرسال لمنع أي تشغيل متزامن آخر
-    sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).setValue('Sending...');
-    SpreadsheetApp.flush();
-
-    // قراءة البيانات
+    // قراءة البيانات الأساسية أولاً
     var name = getValue_(row, indexes, NAME_COLUMN);
     var phone = getValue_(row, indexes, PHONE_COLUMN);
 
-    // لا ترسل البيانات إلا بعد تعبئة الاسم ورقم الهاتف معاً
+    // ⛔ مهم جداً: إذا لم يكتمل الاسم ورقم الهاتف بعد، لا تفعل شيئاً ولا تغيّر الحالة واتركها للمرة القادمة
     if (!name || !phone) return;
+
+    // 🔒 إعادة قراءة الحالة الحية من الشيت للتأكد من عدم إرساله من قبل تشغيل متزامن آخر
+    var liveStatus = String(sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).getValue() || '').trim();
+    if (liveStatus === 'Sent') return;
+
+    // ✅ وضع علامة Sending... الآن فقط بعد التأكد من اكتمال البيانات وجاهزيتها للإرسال
+    sheet.getRange(sheetRow, indexes[STATUS_COLUMN] + 1).setValue('Sending...');
+    SpreadsheetApp.flush();
 
     var payload = {
       rowData: {}
